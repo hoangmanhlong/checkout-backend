@@ -1,0 +1,19 @@
+{
+  "name": "nodejs-demo",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/index.js",
+    "stag": "node src/index.js",
+    "prod": "node src/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "morgan": "^1.10.0"
+  }
+}
