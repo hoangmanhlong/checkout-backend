@@ -1,15 +1,41 @@
-import { init, teardown } from "./mysql/index.js";
+import dotenv from 'dotenv';
+dotenv.config();
 
-let app_database_init = null;
-let app_database_close = null;
+import 'reflect-metadata';
+import { DataSource } from 'typeorm';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-switch (process.env.DB_CONNECTION) {
-    case "mysql":
-        app_database_init = async () => init()
-        app_database_close = async () => teardown()
-        break;
-    default:
-        throw new Error('DB_CONNECTION is not set in environment variables')
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const connection = new DataSource({
+  type: 'mysql',
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '3306'),
+  username: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'checkout_db',
+  synchronize: process.env.ENVIRONMENT === 'DEVELOPMENT',
+  logging: process.env.ENVIRONMENT === 'DEVELOPMENT',
+  entities: [path.join(__dirname, 'entities', '*.js')],
+  migrations: [path.join(__dirname, 'migrations', '*.js')],
+  subscribers: [path.join(__dirname, 'subscribers', '*.js')],
+  extra: {
+    connectionLimit: 10,
+    queueLimit: 0,
+  },
+});
+
+async function init() {
+  return connection.initialize()
 }
 
-export { app_database_init, app_database_close }
+async function teardown() {
+  if (connection.isInitialized) {
+    return connection.destroy();
+  }
+}
+
+export { teardown, init, connection }

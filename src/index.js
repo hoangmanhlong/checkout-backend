@@ -5,7 +5,7 @@ dotenv.config();
 // Import dependencies
 import express from "express";
 import morgan from "morgan";
-import { app_database_init, app_database_close } from './databases/index.js';
+import { init, teardown } from './databases/index.js';
 
 // Get port from environment and validate
 const port = parseInt(process.env.PORT, 10);
@@ -31,7 +31,7 @@ if (env === "DEVELOPMENT") {
 app.get('/', (req, res) => res.send('This is checkout backend!'));
 
 // Initialize database before starting server
-app_database_init()
+init()
     .then(() => {
         console.log('Database connected');
         // Start the server after DB is ready
@@ -46,7 +46,7 @@ app_database_init()
 
 // Graceful shutdown handler for SIGINT, SIGTERM, and nodemon restarts (SIGUSR2)
 const gracefulShutdown = () => {
-    app_database_close()
+    teardown()
         .catch(() => {
             console.warn('Error closing database connection');
         })
