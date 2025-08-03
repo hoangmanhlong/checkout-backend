@@ -1,0 +1,21 @@
+const ENVIRONMENTS = {
+    DEVELOPMENT: "DEVELOPMENT",
+    STAGING: "STAGING",
+    PRODUCTION: "PRODUCTION",
+}
+
+const DATABASE_CONNECTION = {
+    NAME: 'mysql',
+    HOST: process.env.DB_HOST || 'localhost',
+    PORT: process.env.DB_PORT || '3306',
+    USER: process.env.DB_USER || 'root',
+    PASSWORD: process.env.DB_PASSWORD || '',
+    DATABASE: process.env.DB_NAME || 'checkout_db',
+}
+
+export const constants = {
+    ENVIRONMENTS: ENVIRONMENTS,
+    ENVIRONMENT: process.env.ENVIRONMENT ?? ENVIRONMENTS.DEVELOPMENT,
+    PORT: process.env.PORT,
+    DATABASE_CONNECTION: DATABASE_CONNECTION,
+}
