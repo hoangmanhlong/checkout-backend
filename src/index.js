@@ -1,20 +1,18 @@
 // Load environment variables from .env file
-import dotenv from "dotenv";
-dotenv.config();
+import "dotenv/config";
 
 // Import dependencies
+import { constants } from './config/index.js';
 import express from "express";
 import morgan from "morgan";
-import { init, teardown } from './databases/index.js';
+import database from './databases/index.js';
+import utils from "./utils/utils.js";
 
 // Get port from environment and validate
-const port = parseInt(process.env.PORT, 10);
+const port = constants.PORT;
 if (!port) {
-    throw new Error('PORT is not set in environment variables');
+    throw new Error("Port not configured");
 }
-
-// Get current environment (default to DEVELOPMENT)
-const env = process.env.ENVIRONMENT || "DEVELOPMENT";
 
 // Create Express app
 const app = express();
@@ -23,15 +21,15 @@ const app = express();
 app.use(express.json());
 
 // Enable request logging only in development environment
-if (env === "DEVELOPMENT") {
+if (utils.isDevEnv()) {
     app.use(morgan('combined'));
 }
 
 // Define base route
-app.get('/', (req, res) => res.send('This is checkout backend!'));
+app.get('/', (_req, res) => res.send("This is checkout backend!"));
 
 // Initialize database before starting server
-init()
+database.initialize()
     .then(() => {
         console.log('Database connected');
         // Start the server after DB is ready
@@ -46,7 +44,7 @@ init()
 
 // Graceful shutdown handler for SIGINT, SIGTERM, and nodemon restarts (SIGUSR2)
 const gracefulShutdown = () => {
-    teardown()
+    database.teardown()
         .catch(() => {
             console.warn('Error closing database connection');
         })
