@@ -4,7 +4,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
       target: ${ENVIRONMENT}
-    container_name: nodejs-backend
+    container_name: checkout-backend
     ports:
       - "3000:${PORT}"
     environment:
@@ -23,6 +23,34 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    command:
+      - "--log_bin_trust_function_creators=1"
+    volumes:
+      - mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_AUTHENTICATION_PLUGIN: caching_sha2_password
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    networks:
+      - app-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "while ! /usr/bin/mysqladmin ping -hlocalhost --silent; do echo '.'; done",
+        ]
+      interval: 10s
+      timeout: 10s
+
+volumes:
+  mysql:
 
 networks:
   app-network:
