@@ -1,5 +1,4 @@
 import { constants } from '../config/index.js';
-import utils from '../utils/utils.js';
 
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
@@ -21,8 +20,8 @@ class AppDatabase {
       username: constants.DATABASE_CONNECTION.USER,
       password: constants.DATABASE_CONNECTION.PASSWORD,
       database: constants.DATABASE_CONNECTION.DATABASE,
-      synchronize: utils.isDevEnv(),
-      logging: utils.isDevEnv(),
+      synchronize: constants.IS_DEVELOPMENT_ENVIRONMENT,
+      logging: constants.IS_DEVELOPMENT_ENVIRONMENT,
       entities: [path.join(__dirname, 'entities', '*.js')],
       migrations: [path.join(__dirname, 'migrations', '*.js')],
       subscribers: [path.join(__dirname, 'subscribers', '*.js')],
