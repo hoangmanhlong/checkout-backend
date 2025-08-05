@@ -1,5 +1,5 @@
 import winston from "winston";
-import utils from "../utils/utils.js";
+import constants from "./constants.js";
 
 const enumerateErrorFormat = winston.format((info) => {
   if (info instanceof Error) {
@@ -9,10 +9,10 @@ const enumerateErrorFormat = winston.format((info) => {
 });
 
 const logger = winston.createLogger({
-  level: utils.isDevEnv() ? "debug" : "info",
+  level: constants.IS_DEVELOPMENT_ENVIRONMENT ? "debug" : "info",
   format: winston.format.combine(
     enumerateErrorFormat(),
-    utils.isDevEnv() ? winston.format.colorize() : winston.format.uncolorize(),
+    constants.IS_DEVELOPMENT_ENVIRONMENT ? winston.format.colorize() : winston.format.uncolorize(),
     winston.format.splat(),
     winston.format.printf(({ level, message }) => `${level}: ${message}`)
   ),

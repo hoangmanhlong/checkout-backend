@@ -2,12 +2,10 @@
 import "dotenv/config";
 
 // Import dependencies
-import { constants } from './config/index.js';
+import { constants, logger } from './config/index.js';
 import express from "express";
 import morgan from "morgan";
 import database from './databases/index.js';
-import utils from "./utils/utils.js";
-import logger from "./config/logging.js";
 
 // Get port from environment and validate
 const port = constants.PORT;
@@ -20,10 +18,9 @@ const app = express();
 
 // Middleware to parse JSON in request body
 app.use(express.json());
-logger.info(`${constants.ENVIRONMENT} environment`);
 
 // Enable request logging only in development environment
-if (utils.isDevEnv()) {
+if (constants.IS_DEVELOPMENT_ENVIRONMENT) {
     app.use(morgan('combined'));
 }
 
