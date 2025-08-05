@@ -20,3 +20,4 @@ chmod +x docker_build.sh
 ```bash
 ./run.sh
 ```
+Notes when building and running docker: copy the **.env** file from the root directory to the docker directory. The contents of this file are the same.
