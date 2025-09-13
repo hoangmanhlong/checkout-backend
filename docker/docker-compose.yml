@@ -6,7 +6,7 @@ services:
       target: ${ENVIRONMENT}
     container_name: checkout-backend
     ports:
-      - "3000:${PORT}"
+      - "3000:${PORT}" 
     environment:
       - PORT=${PORT}
     env_file:
@@ -36,6 +36,8 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_AUTHENTICATION_PLUGIN: caching_sha2_password
+    env_file:
+      - ../.env
     ports:
       - "${DB_PORT}:${DB_PORT}"
     networks:
@@ -49,9 +51,15 @@ services:
       interval: 10s
       timeout: 10s
 
+<<<<<<< Updated upstream
 volumes:
   mysql:
+=======
+>>>>>>> Stashed changes
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  mysql:
