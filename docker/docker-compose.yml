@@ -51,12 +51,6 @@ services:
       interval: 10s
       timeout: 10s
 
-<<<<<<< Updated upstream
-volumes:
-  mysql:
-=======
->>>>>>> Stashed changes
-
 networks:
   app-network:
     driver: bridge
