@@ -1,39 +1,35 @@
-import { constants } from '../config/index.js';
-
-import 'reflect-metadata';
-import { DataSource } from 'typeorm';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
+import { constants } from "../config/index.js";
+import "reflect-metadata";
+import { DataSource } from "typeorm";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-class AppDatabase {
-  connection;
+export const AppDataSource = new DataSource({
+  type: constants.DATABASE_CONNECTION.NAME,
+  host: constants.DATABASE_CONNECTION.HOST,
+  port: constants.DATABASE_CONNECTION.PORT,
+  username: constants.DATABASE_CONNECTION.USER,
+  password: constants.DATABASE_CONNECTION.PASSWORD,
+  database: constants.DATABASE_CONNECTION.DATABASE,
+  synchronize: constants.IS_DEVELOPMENT_ENVIRONMENT, // TypeORM will automatically create new table based on entity
+  logging: constants.IS_DEVELOPMENT_ENVIRONMENT,
+  entities: [path.join(__dirname, "entities", "*.js")],
+  migrations: [path.join(__dirname, "migrations", "*.js")],
+  subscribers: [path.join(__dirname, "subscribers", "*.js")],
+  extra: {
+    connectionLimit: 10,
+    queueLimit: 0,
+  },
+});
 
-  constructor() {
-    this.connection = new DataSource({
-      type: constants.DATABASE_CONNECTION.NAME,
-      host: constants.DATABASE_CONNECTION.HOST,
-      port: constants.DATABASE_CONNECTION.PORT,
-      username: constants.DATABASE_CONNECTION.USER,
-      password: constants.DATABASE_CONNECTION.PASSWORD,
-      database: constants.DATABASE_CONNECTION.DATABASE,
-      synchronize: constants.IS_DEVELOPMENT_ENVIRONMENT,
-      logging: constants.IS_DEVELOPMENT_ENVIRONMENT,
-      entities: [path.join(__dirname, 'entities', '*.js')],
-      migrations: [path.join(__dirname, 'migrations', '*.js')],
-      subscribers: [path.join(__dirname, 'subscribers', '*.js')],
-      extra: {
-        connectionLimit: 10,
-        queueLimit: 0,
-      },
-    });
-  }
+class AppDatabase {
+  connection = AppDataSource;
 
   async initialize() {
-    return this.connection.initialize()
+    return this.connection.initialize();
   }
 
   async teardown() {
@@ -43,6 +39,6 @@ class AppDatabase {
   }
 }
 
-const database = new AppDatabase()
+const database = new AppDatabase();
 
 export default database;
