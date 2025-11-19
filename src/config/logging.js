@@ -8,13 +8,23 @@ const enumerateErrorFormat = winston.format((info) => {
   return info;
 });
 
+// Best practice timestamp format
+const timestampFormat = winston.format.timestamp({
+  format: "YYYY-MM-DD HH:mm:ss",
+});
+
 const logger = winston.createLogger({
   level: constants.IS_DEVELOPMENT_ENVIRONMENT ? "debug" : "info",
   format: winston.format.combine(
     enumerateErrorFormat(),
-    constants.IS_DEVELOPMENT_ENVIRONMENT ? winston.format.colorize() : winston.format.uncolorize(),
+    timestampFormat,
+    constants.IS_DEVELOPMENT_ENVIRONMENT
+      ? winston.format.colorize()
+      : winston.format.uncolorize(),
     winston.format.splat(),
-    winston.format.printf(({ level, message }) => `${level}: ${message}`)
+    winston.format.printf(({ timestamp, level, message }) => {
+      return `${timestamp} | ${level}: ${message}`;
+    })
   ),
   transports: [
     new winston.transports.Console({
