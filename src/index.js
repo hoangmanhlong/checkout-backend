@@ -6,6 +6,7 @@ import { constants, logger } from './config/index.js';
 import express from "express";
 import morgan from "morgan";
 import database from './databases/index.js';
+import routes from './apps/routes/index.js'
 
 // Get port from environment and validate
 const port = constants.PORT;
@@ -26,6 +27,8 @@ if (constants.IS_DEVELOPMENT_ENVIRONMENT) {
 
 // Define base route
 app.get('/', (_req, res) => res.send("This is checkout backend!"));
+
+app.use('/api', routes)
 
 // Initialize database before starting server
 database.initialize()
