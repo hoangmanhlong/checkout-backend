@@ -1,55 +1,66 @@
 services:
   backend:
     build:
-      context: ..
+      context: .
       dockerfile: docker/Dockerfile
-      target: ${ENVIRONMENT}
+      target: ${APP_ENVIRONMENT:-development}
     container_name: checkout-backend
+    stdin_open: true
+    tty: true
     ports:
-      - "3000:${PORT}" 
-    environment:
-      - PORT=${PORT}
-    env_file:
-      - ../.env
+      - "3000:${PORT:-3000}"
     volumes:
-      - ../src:/app/src:ro
-      - ../logs:/app/logs
-    restart: unless-stopped
+      - ./src:/app/src:ro
+      - ./logs:/app/logs
+    env_file:
+      - .env
     networks:
       - app-network
+    environment:
+      PORT: ${PORT:-3000}
+      TZ: UTC
+      APP_ENVIRONMENT: ${APP_ENVIRONMENT:-development}
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_USER: ${DB_USER:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-root}
+      DB_NAME: ${DB_NAME:-checkout}
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:${PORT}', (res) => process.exit(res.statusCode === 200 ? 0 : 1))\""]
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:${PORT:-3000}', (res) => process.exit(res.statusCode === 200 ? 0 : 1))\""]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: mysql:8.0
+    container_name: checkout-mysql
     command:
       - "--log_bin_trust_function_creators=1"
+    restart: unless-stopped
     volumes:
       - mysql:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_AUTHENTICATION_PLUGIN: caching_sha2_password
     env_file:
-      - ../.env
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_NAME:-checkout}
+      MYSQL_AUTHENTICATION_PLUGIN: caching_sha2_password
+      TZ: UTC
     ports:
-      - "${DB_PORT}:${DB_PORT}"
+      - "${DB_PORT:-3306}:3306"
     networks:
       - app-network
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "while ! /usr/bin/mysqladmin ping -hlocalhost --silent; do echo '.'; done",
-        ]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost --silent"]
       interval: 10s
-      timeout: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 networks:
   app-network:

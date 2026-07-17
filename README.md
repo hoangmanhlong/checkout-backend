@@ -4,20 +4,51 @@ Checkout backend written in expressJS
 
 ## Usage
 
-### Build project with docker
-1. Grant execution permissions to **run.sh** and **docker_build.sh**
+### Prerequisites
+
+- Docker and Docker Compose installed
+- Copy `.env.example` to `.env` and fill in values
+
 ```bash
-chmod +x run.sh
-chmod +x docker_build.sh
+cp .env.example .env
 ```
 
-2. Build project with docker
+### Run with Docker Compose
+
+All commands are run from the **project root**.
+
+**Development**
 ```bash
-./docker_build.sh
+APP_ENVIRONMENT=development docker compose --project-directory . -f docker/docker-compose.yml up --build
 ```
 
-3. Run backend with docker
+**Staging**
 ```bash
-./run.sh
+APP_ENVIRONMENT=staging docker compose --project-directory . -f docker/docker-compose.yml up --build
 ```
-Notes when building and running docker: copy the **.env** file from the root directory to the docker directory. The contents of this file are the same.
+
+**Production**
+```bash
+APP_ENVIRONMENT=production docker compose --project-directory . -f docker/docker-compose.yml up --build -d
+```
+
+Or set `APP_ENVIRONMENT` in `.env` and run:
+```bash
+docker compose --project-directory . -f docker/docker-compose.yml up --build -d
+```
+
+### Useful commands
+
+```bash
+# View logs
+docker compose --project-directory . -f docker/docker-compose.yml logs -f backend
+
+# Stop all services
+docker compose --project-directory . -f docker/docker-compose.yml down
+
+# Stop and remove volumes
+docker compose --project-directory . -f docker/docker-compose.yml down -v
+
+# Rebuild without cache
+docker compose --project-directory . -f docker/docker-compose.yml build --no-cache
+```

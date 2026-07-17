@@ -1,36 +1,45 @@
-###################################################
-# Stage: base
-# 
-# This base stage ensures all other stages are using the same base image
-# and provides common configuration for all stages, such as the working dir.
-###################################################
-FROM node:20 AS base
-WORKDIR /usr/local/app
+# syntax=docker/dockerfile:1.4
 
-###################################################
-################  BACKEND STAGES  #################
-###################################################
+# ==========================================
+# Stage 1: Builder — install dependencies
+# ==========================================
+FROM node:20-slim AS builder
 
-###################################################
-# Stage: backend-base
-#
-# This stage is used as the base for the backend-dev and test stages, since
-# there are common steps needed for each.
-###################################################
-FROM base AS development
-RUN cd ..
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+
+# ==========================================
+# Stage 2: Base runner — shared across envs
+# ==========================================
+FROM node:20-slim AS base
+
+WORKDIR /app
+
+COPY --from=builder /app/node_modules ./node_modules
 COPY . .
-RUN npm i
+
+EXPOSE 3000
+
+
+FROM base AS development
+ENV NODE_ENV=development
 CMD ["npm", "run", "dev"]
 
 FROM base AS staging
-RUN cd ..
-COPY . .
-RUN npm i
+ENV NODE_ENV=staging
 CMD ["npm", "run", "stag"]
 
+FROM base AS test
+ENV NODE_ENV=test
+CMD ["npm", "test"]
+
+# PRODUCTION: run as non-root user for security
 FROM base AS production
-RUN cd ..
-COPY . .
-RUN npm i
+ENV NODE_ENV=production
+RUN useradd --create-home --no-log-init appuser \
+    && chown -R appuser:appuser /app
+USER appuser
 CMD ["npm", "run", "prod"]
